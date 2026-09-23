@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nafees Ur Rehman — .NET Developer</title>
+<meta name="description" content="Nafees Ur Rehman — .NET Developer. C#, Java, ASP.NET MVC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1e1f26; --bg-panel:#17181f; --bg-elevated:#24252e; --bg-hover:#2a2b35;
+  --border:#2d2e38; --text:#d4d4dc; --text-dim:#7d7e8c; --text-bright:#f2f2f5;
+  --cs:#4fc1ff; --java:#f89820; --keyword:#c586c0; --string:#ce9178; --comment:#6a9955; --func:#dcdcaa;
+  --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.65;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--cs);color:#0b0c10;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--bg-panel);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;}
+:focus-visible{outline:2px solid var(--cs);outline-offset:2px;}
+
+/* ---- Titlebar ---- */
+.titlebar{background:var(--bg-panel);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:10px 16px;position:sticky;top:0;z-index:50;}
+.dots{display:flex;gap:7px;flex-shrink:0;}
+.dots span{width:11px;height:11px;border-radius:50%;display:block;}
+.dots span:nth-child(1){background:#ff5f57;} .dots span:nth-child(2){background:#febc2e;} .dots span:nth-child(3){background:#28c840;}
+.titlebar-label{font-family:var(--mono);font-size:13px;color:var(--text-dim);margin:0 auto;}
+.menu-toggle{display:none;background:none;border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:12px;padding:5px 10px;cursor:pointer;}
+
+/* ---- Shell layout ---- */
+.shell{display:flex;min-height:calc(100vh - 41px);}
+.sidebar{width:220px;flex-shrink:0;background:var(--bg-panel);border-right:1px solid var(--border);padding:18px 0;position:sticky;top:41px;height:calc(100vh - 41px);overflow-y:auto;}
+.sidebar-title{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-dim);padding:0 18px 10px;}
+.file-list{list-style:none;}
+.file-list li a{display:flex;align-items:center;gap:9px;padding:7px 18px;font-family:var(--mono);font-size:13.5px;color:var(--text-dim);border-left:2px solid transparent;transition:background .15s,color .15s;}
+.file-list li a:hover{background:var(--bg-hover);color:var(--text);}
+.file-list li a.active{background:var(--bg-elevated);color:var(--text-bright);border-left-color:var(--cs);}
+.file-list li a .ext-cs{color:var(--cs);} .file-list li a .ext-java{color:var(--java);}
+.sidebar-foot{margin-top:24px;padding:14px 18px 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+.sidebar-foot a{display:block;padding:4px 0;color:var(--text-dim);}
+.sidebar-foot a:hover{color:var(--cs);}
+
+.main{flex:1;min-width:0;}
+.tabs{display:flex;background:var(--bg-panel);border-bottom:1px solid var(--border);overflow-x:auto;}
+.tabs span{font-family:var(--mono);font-size:12.5px;padding:10px 18px;color:var(--text-dim);border-right:1px solid var(--border);white-space:nowrap;}
+.tabs span.hot{color:var(--text-bright);background:var(--bg);border-top:2px solid var(--cs);}
+
+.statusbar{background:var(--cs);color:#0b0c10;font-family:var(--mono);font-size:12px;display:flex;gap:18px;padding:5px 16px;flex-wrap:wrap;}
+.statusbar b{font-weight:700;}
+
+/* ---- Section frame (editor pane look) ---- */
+.pane{border-bottom:1px solid var(--border);padding:56px 40px 56px 64px;position:relative;}
+.pane::before{content:'';position:absolute;left:40px;top:0;bottom:0;width:1px;background:var(--border);}
+.gutter{position:absolute;left:0;top:56px;font-family:var(--mono);font-size:12px;color:#3a3b46;line-height:1.9;user-select:none;}
+.comment{font-family:var(--mono);color:var(--comment);font-size:14px;margin-bottom:14px;}
+.kw{color:var(--keyword);} .str{color:var(--string);} .fn{color:var(--func);}
+.pane h2{font-family:var(--mono);font-size:26px;color:var(--text-bright);margin-bottom:6px;}
+.pane h2 .brace{color:var(--text-dim);font-weight:400;}
+.pane-sub{font-family:var(--mono);font-size:13px;color:var(--text-dim);margin-bottom:28px;}
+.prose{max-width:680px;font-size:16px;color:var(--text);}
+.prose p{margin-bottom:14px;}
+.prose strong{color:var(--text-bright);font-weight:600;}
+
+/* ---- Hero ---- */
+.hero{padding:80px 40px 70px 64px;}
+.hero .comment{font-size:15px;}
+.hero h1{font-family:var(--mono);font-size:clamp(28px,4.4vw,46px);font-weight:700;color:var(--text-bright);line-height:1.25;margin:10px 0 6px;}
+.hero h1 .kw{color:var(--keyword);} .hero h1 .fn{color:var(--func);} .hero h1 .str{color:var(--string);}
+.role-line{font-family:var(--mono);font-size:clamp(16px,2.2vw,20px);color:var(--cs);margin:18px 0 26px;min-height:1.5em;}
+.role-line::after{content:'';display:inline-block;width:9px;height:1.1em;background:var(--cs);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite;}
+@keyframes blink{50%{opacity:0;}}
+.hero-lede{max-width:600px;color:var(--text-dim);font-size:16px;margin-bottom:30px;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;}
+.btn{font-family:var(--mono);font-size:13.5px;padding:11px 20px;border-radius:5px;border:1px solid var(--border);transition:transform .15s,border-color .15s;}
+.btn:hover{transform:translateY(-1px);}
+.btn-primary{background:var(--cs);color:#0b0c10;border-color:var(--cs);font-weight:600;}
+.btn-ghost{color:var(--text);}
+.btn-ghost:hover{border-color:var(--java);color:var(--java);}
+
+/* ---- Experience ---- */
+.job{border-left:2px solid var(--border);padding:2px 0 26px 22px;margin-left:2px;position:relative;}
+.job::before{content:'';position:absolute;left:-6px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--cs);}
+.job:last-child{padding-bottom:0;}
+.job-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;margin-bottom:3px;}
+.job-title{font-family:var(--mono);font-size:16.5px;color:var(--text-bright);font-weight:600;}
+.job-date{font-family:var(--mono);font-size:13px;color:var(--java);}
+.job-org{font-size:14px;color:var(--text-dim);margin-bottom:10px;}
+.job ul{list-style:none;max-width:640px;}
+.job ul li{position:relative;padding-left:18px;margin-bottom:7px;font-size:15px;color:var(--text);}
+.job ul li::before{content:'▸';position:absolute;left:0;color:var(--cs);}
+
+/* ---- Skills ---- */
+.skill-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:840px;}
+.skill-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:16px 18px;}
+.skill-card h3{font-family:var(--mono);font-size:13px;color:var(--java);letter-spacing:.02em;margin-bottom:10px;}
+.chip-row{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{font-family:var(--mono);font-size:12.5px;background:var(--bg-panel);border:1px solid var(--border);color:var(--text);padding:4px 9px;border-radius:4px;}
+
+/* ---- Projects ---- */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;max-width:900px;}
+.proj-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:20px 22px;}
+.proj-card .tag{font-family:var(--mono);font-size:11px;color:var(--cs);border:1px solid var(--cs);border-radius:3px;padding:2px 7px;display:inline-block;margin-bottom:10px;}
+.proj-card h3{font-family:var(--mono);font-size:15.5px;color:var(--text-bright);margin-bottom:8px;}
+.proj-card p{font-size:14px;color:var(--text-dim);margin-bottom:12px;}
+.proj-stack{font-family:var(--mono);font-size:12px;color:var(--func);}
+
+/* ---- Certs / Education ---- */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;}
+.list-plain{list-style:none;}
+.list-plain li{padding:9px 0;border-bottom:1px solid var(--border);font-size:14.5px;display:flex;justify-content:space-between;gap:12px;}
+.list-plain li span{color:var(--text-dim);font-family:var(--mono);font-size:12.5px;white-space:nowrap;}
+
+/* ---- Contact ---- */
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:760px;}
+.contact-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:4px;transition:border-color .15s;}
+.contact-card:hover{border-color:var(--cs);}
+.contact-card .k{font-family:var(--mono);font-size:11px;color:var(--comment);}
+.contact-card .v{font-size:14.5px;color:var(--text-bright);word-break:break-word;}
+
+footer{padding:22px 64px 34px;font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+
+@media (max-width:900px){
+  .two-col{grid-template-columns:1fr;gap:0;}
+}
+@media (max-width:760px){
+  .menu-toggle{display:block;}
+  .sidebar{position:fixed;left:0;top:41px;bottom:0;z-index:40;transform:translateX(-100%);transition:transform .2s ease;box-shadow:8px 0 24px rgba(0,0,0,.4);}
+  .sidebar.open{transform:translateX(0);}
+  .pane,.hero{padding-left:28px;padding-right:24px;}
+  .pane::before{left:14px;}
+  .gutter{display:none;}
+  .tabs span:nth-child(n+3){display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle file explorer">☰ files</button>
+  <div class="dots"><span></span><span></span><span></span></div>
+  <div class="titlebar-label">nafees-ur-rehman — portfolio — Visual Studio Code</div>
+</div>
+
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-title">EXPLORER · PORTFOLIO</div>
+    <ul class="file-list">
+      <li><a href="#home" class="nav-link"><span class="ext-cs">◆</span> home.cs</a></li>
+      <li><a href="#about" class="nav-link"><span class="ext-java">◆</span> about.java</a></li>
+      <li><a href="#experience" class="nav-link"><span class="ext-cs">◆</span> experience.cs</a></li>
+      <li><a href="#skills" class="nav-link"><span class="ext-java">◆</span> skills.java</a></li>
+      <li><a href="#projects" class="nav-link"><span class="ext-cs">◆</span> projects.cs</a></li>
+      <li><a href="#credentials" class="nav-link"><span class="ext-java">◆</span> credentials.java</a></li>
+      <li><a href="#contact" class="nav-link"><span class="ext-cs">◆</span> contact.cs</a></li>
+    </ul>
+    <div class="sidebar-foot">
+      <a href="https://github.com/YOUR-USERNAME" target="_blank" rel="noopener">→ github.com/YOUR-USERNAME</a>
+      <a href="https://linkedin.com/in/YOUR-PROFILE" target="_blank" rel="noopener">→ linkedin.com/in/YOUR-PROFILE</a>
+      <a href="mailto:nafeesurrehman11@gmail.com">→ nafeesurrehman11@gmail.com</a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="tabs">
+      <span class="hot">home.cs ×</span>
+      <span>about.java</span>
+      <span>experience.cs</span>
+      <span>skills.java</span>
+      <span>projects.cs</span>
+    </div>
+
+    <section id="home" class="hero">
+      <div class="comment">// Software Engineer — Doha, Qatar / Bengaluru, India</div>
+      <h1><span class="kw">public class</span> <span class="fn">NafeesUrRehman</span> : <span class="str">IDeveloper</span></h1>
+      <div class="role-line" id="typedRole">.NET Developer</div>
+      <p class="hero-lede">I build and stabilise production applications in C#, ASP.NET MVC and Core Java — from Citrix-hosted CX tooling used by live contact centres to camera-driven control software running on gate barriers in the field.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="#contact">Get In Touch</a>
+        <a class="btn btn-primary" href="https://www.linkedin.com/in/nafees-ur-rehman-4100b7134/">Linkedin</a>
+        <a class="btn btn-ghost" href="#experience">View experience</a>
+        <a class="btn btn-ghost" href="https://github.com/Nafees7" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </section>
+
+    <section id="about" class="pane">
+      <div class="gutter">01<br>02<br>03<br>04</div>
+      <div class="comment">// about.java</div>
+      <h2><span class="kw">class</span> About <span class="brace">{</span></h2>
+      <div class="pane-sub">summary · role · focus</div>
+      <div class="prose">
+        <p>I'm a software developer with <strong>five years of experience</strong> across C#/.NET, ASP.NET MVC and Core Java, currently working as a <strong>.NET Developer at [24]7.ai</strong>, where I build and debug customer-experience applications delivered through Citrix Workspace — chat and voice tools used by live contact-centre agents every day.</p>
+        <p>Before that, I spent a year in Doha writing <strong>Core Java software for camera-driven parking and gate-barrier systems</strong>, which meant shipping code that had to work correctly against real hardware, on real client sites, with no room for "mostly works."</p>
+        <p>I like fixing things that are actually broken more than building things that merely look finished — reproducing a defect, reading the stack trace, finding the real cause, and shipping a fix that doesn't come back.</p>
+      </div>
+    </section>
+
+    <section id="experience" class="pane">
+      <div class="comment">// experience.cs</div>
+      <h2><span class="kw">public</span> Timeline <span class="fn">GetExperience</span>()</h2>
+      <div class="pane-sub">reverse-chronological · 5 roles</div>
+
+      <div class="job">
+        <div class="job-head"><span class="job-title">.NET Developer</span><span class="job-date">May 2025 — Present</span></div>
+        <div class="job-org">[24]7.ai · Bengaluru, India</div>
+        <ul>
+          <li>Build and maintain C#/.NET applications delivered to agents through Citrix Workspace, supporting live chat and voice CX tooling.</li>
+          <li>Own end-to-end debugging of broken modules — reproduce, trace, root-cause, fix permanently.</li>
+          <li>Extend ASP.NET MVC modules with new controllers, views and service-layer logic integrated with backend APIs.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <div class="job-head"><span class="job-title">Java Core Developer</span><span class="job-date">Mar 2024 — Apr 2025</span></div>
+        <div class="job-org">Computer Station Co. · Doha, Qatar</div>
+        <ul>
+          <li>Developed Core Java software driving camera-based Parking Guidance and Management Systems (PGS/PMS) and gate barriers.</li>
+          <li>Built integration modules connecting camera feeds and barrier controllers to backend services in real time.</li>
+          <li>Supported on-site commissioning and handover with contractors across client sites in Qatar.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <div class="job-head"><span class="job-title">Network Engineer</span><span class="job-date">Nov 2022 — Jan 2024</span></div>
+        <div class="job-org">SCII · Bengaluru, India</div>
+        <ul>
+          <li>Managed network and system security for industrial environments; configured firewall policies and access controls.</li>
+          <li>Built Python automation tooling to streamline monitoring and reporting across SCADA networks.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <div class="job-head"><span class="job-title">Python Developer</span><span class="job-date">Sep 2021 — Oct 2022</span></div>
+        <div class="job-org">AppSmith · Bengaluru, India</div>
+        <ul>
+          <li>Designed scalable web applications in Python/Django, delivering REST APIs consumed by front-end clients.</li>
+          <li>Improved performance through database query optimisation and service-layer refactoring.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <div class="job-head"><span class="job-title">Web Developer Intern</span><span class="job-date">May 2020 — Aug 2020</span></div>
+        <div class="job-org">iNeuron.ai · Bengaluru, India</div>
+        <ul>
+          <li>Built responsive websites on Linux with Python and Django; wrote deployment shell scripts.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="skills" class="pane">
+      <div class="comment">// skills.java</div>
+      <h2><span class="kw">interface</span> Skillset <span class="brace">{</span></h2>
+      <div class="pane-sub">languages · frameworks · tools</div>
+      <div class="skill-grid">
+        <div class="skill-card"><h3>LANGUAGES</h3><div class="chip-row"><span class="chip">C#</span><span class="chip">Java</span><span class="chip">Python</span><span class="chip">C</span><span class="chip">C++</span><span class="chip">SQL</span></div></div>
+        <div class="skill-card"><h3>.NET STACK</h3><div class="chip-row"><span class="chip">.NET Framework</span><span class="chip">ASP.NET MVC</span><span class="chip">Web API</span><span class="chip">LINQ</span></div></div>
+        <div class="skill-card"><h3>WEB & UI</h3><div class="chip-row"><span class="chip">HTML5</span><span class="chip">CSS3</span><span class="chip">JavaScript</span><span class="chip">Razor</span></div></div>
+        <div class="skill-card"><h3>DATABASES</h3><div class="chip-row"><span class="chip">SQL Server</span><span class="chip">MySQL</span><span class="chip">Stored Procs</span></div></div>
+        <div class="skill-card"><h3>PLATFORMS & TOOLS</h3><div class="chip-row"><span class="chip">Citrix Workspace</span><span class="chip">Visual Studio</span><span class="chip">Git</span><span class="chip">IIS</span><span class="chip">Linux</span></div></div>
+        <div class="skill-card"><h3>PRACTICES</h3><div class="chip-row"><span class="chip">Agile/Scrum</span><span class="chip">Root-cause debugging</span><span class="chip">Code review</span></div></div>
+      </div>
+    </section>
+
+    <section id="projects" class="pane">
+      <div class="comment">// projects.cs</div>
+      <h2><span class="kw">public</span> Project[] <span class="fn">Selected</span>()</h2>
+      <div class="pane-sub">3 builds</div>
+      <div class="proj-grid">
+        <div class="proj-card">
+          <span class="tag">ML</span>
+          <h3>Phishing Domain Detection</h3>
+          <p>Classifies websites as legitimate or phishing using an XGBoost classifier trained on data pulled from the PhishTank API, with TensorFlow handling dataset partitioning.</p>
+          <div class="proj-stack">Python · XGBoost · TensorFlow</div>
+        </div>
+        <div class="proj-card">
+          <span class="tag">DATA</span>
+          <h3>Twitter Sentiment Analysis</h3>
+          <p>Ingests real-time tweets and analyses them with NLTK, classifying sentiment as positive, negative or neutral and visualising results with Matplotlib.</p>
+          <div class="proj-stack">Python · NLTK · Matplotlib</div>
+        </div>
+        <div class="proj-card">
+          <span class="tag">AUTOMATION</span>
+          <h3>Video Downloader</h3>
+          <p>Automated download utility built with Selenium and Python, operating strictly through official site APIs and with owner permission.</p>
+          <div class="proj-stack">Python · Selenium</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="credentials" class="pane">
+      <div class="comment">// credentials.java</div>
+      <h2><span class="kw">final</span> Credentials <span class="fn">record</span></h2>
+      <div class="pane-sub">certifications · education</div>
+      <div class="two-col">
+        <div>
+          <h3 style="font-family:var(--mono);font-size:13px;color:var(--java);margin-bottom:10px;">CERTIFICATIONS</h3>
+          <ul class="list-plain">
+            <li>LFCE — Linux Foundation <span>Linux Foundation</span></li>
+            <li>CISCO Cybersecurity <span>Cisco</span></li>
+            <li>CompTIA Network+ <span>CompTIA</span></li>
+            <li>Data Analytics <span>IBM</span></li>
+            <li>CLA — C Programming <span>C++ Institute</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="font-family:var(--mono);font-size:13px;color:var(--java);margin-bottom:10px;">EDUCATION</h3>
+          <ul class="list-plain">
+            <li>MCA — Sri Siddhartha Institute of Technology <span>2020–22</span></li>
+            <li>BCA — Sri Siddaganga College <span>2017–20</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="pane">
+      <div class="comment">// contact.cs</div>
+      <h2><span class="kw">public void</span> <span class="fn">Reach</span>(<span class="str">Person</span> me)</h2>
+      <div class="pane-sub">let's talk</div>
+      <div class="contact-grid">
+        <a class="contact-card" href="mailto:nafeesurrehman11@gmail.com"><span class="k">EMAIL</span><span class="v">nafeesurrehman11@outlook.com</span></a>
+        <a class="contact-card" href="tel:+917019589233"><span class="k">PHONE — INDIA</span><span class="v">+91 70195 89233</span></a>
+        <a class="contact-card" href="https://github.com/Nafees7" target="_blank" rel="noopener"><span class="k">GITHUB</span><span class="v">GITHUB</span></a>
+        <a class="contact-card" href="https://www.linkedin.com/in/nafees-ur-rehman-4100b7134/" target="_blank" rel="noopener"><span class="k">LINKEDIN</span><span class="v">linkedin.com</span></a>
+        <a class="contact-card" href="#home"><span class="k">LOCATION</span><span class="v">Doha, Qatar / Bengaluru, IN</span></a>
+      </div>
+    </section>
+
+    <footer>© <span id="yr"></span> Nafees Ur Rehman — built with HTML, CSS & vanilla JS, no framework required.</footer>
+  </div>
+</div>
+
+<div class="statusbar">
+  <span>⎇ main</span>
+  <span><b>●</b> .NET / Java</span>
+  <span>UTF-8</span>
+  <span>Ln 1, Col 1</span>
+  <span style="margin-left:auto;">Prettier</span>
+</div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// mobile sidebar toggle
+const sidebar = document.getElementById('sidebar');
+const toggle = document.getElementById('menuToggle');
+toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => sidebar.classList.remove('open')));
+
+// active section highlight
+const links = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('section[id]');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    }
+  });
+}, { rootMargin: '-35% 0px -55% 0px' });
+sections.forEach(s => obs.observe(s));
+
+// hero typing effect — single orchestrated moment
+const roles = ['.NET Developer', 'C# & ASP.NET MVC Engineer', 'Core Java Developer', 'Production Debugger'];
+const el = document.getElementById('typedRole');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (reduceMotion) {
+  el.textContent = roles[0];
+} else {
+  let ri = 0, ci = 0, deleting = false;
+  function tick(){
+    const word = roles[ri];
+    el.textContent = deleting ? word.slice(0, ci--) : word.slice(0, ci++);
+    let delay = deleting ? 35 : 65;
+    if (!deleting && ci === word.length + 1) { delay = 1400; deleting = true; }
+    else if (deleting && ci === 0) { deleting = false; ri = (ri + 1) % roles.length; delay = 300; }
+    setTimeout(tick, delay);
+  }
+  tick();
+}
+</script>
+</body>
+</html>
